@@ -22,19 +22,19 @@ export const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
 
 export async function indexTheDocument() {
     try {
-        console.log("Loading PDF...");
+        // console.log("Loading PDF...");
         const loader = new PDFLoader(`${process.cwd()}/public/profile.pdf`, { splitPages: false });
         const doc = await loader.load();
-        console.log("PDF Loaded");
+        // console.log("PDF Loaded");
 
-        console.log("Splitting text...");
+        // console.log("Splitting text...");
         const textSplitter = new RecursiveCharacterTextSplitter({
             chunkSize: 500,
             chunkOverlap: 100,
         });
 
         const texts = await textSplitter.splitText(doc[0]!.pageContent);
-        console.log("Text Split", texts);
+        // console.log("Text Split", texts);
 
         const documents = texts.map((chunk, index) => {
             return {
@@ -44,13 +44,13 @@ export async function indexTheDocument() {
             };
         });
 
-        console.log("Documents prepared");
+        // console.log("Documents prepared");
 
-        console.log("Adding documents to vector store..." + documents.length);
+        // console.log("Adding documents to vector store..." + documents.length);
         const startTime = Date.now();
         await vectorStore.addDocuments(documents);
         const endTime = Date.now();
-        console.log(`Documents added in ${endTime - startTime} ms`);
+        // console.log(`Documents added in ${endTime - startTime} ms`);
     } catch (error) {
         console.error("Error indexing document:", error);
     }

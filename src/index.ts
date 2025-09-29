@@ -33,7 +33,7 @@ app.post("/api/ask", async (req,res) => {
         },
       ],
     };
-    console.log(initialState)
+    // console.log(initialState)
     // Invoke the full compiled graph instead of only ai.invoke
     const response = await ai.invoke(initialState,{
       configurable:{thread_id:configId}

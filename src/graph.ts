@@ -37,7 +37,7 @@ const frontDeskAgent = async (state: typeof StateAnnotation.State) => {
     ...state.messages
   ]);
 
-  console.log("supportResponse", supportResponse);
+  // console.log("supportResponse", supportResponse);
 
   const CATEGORIZATION_SYSTEM_PROMPT = `You are expert router for DEVSUVAM's Portfolio website which shows projects, experiences, resume, and contact information and all the information about the user.
   Your job is to detect whether the conversation is about the user or not.
@@ -66,7 +66,7 @@ const frontDeskAgent = async (state: typeof StateAnnotation.State) => {
     { role: "user", content: CATEGORIZATION_HUMAN_PROMPT },
   ], { response_format: { type: "json_object" } });
 
-  console.log("categorizationResponse", categorizationResponse);
+  // console.log("categorizationResponse", categorizationResponse);
 
   let categorizationOutput;
   try {
@@ -102,7 +102,7 @@ const profileAgent = async (state: typeof StateAnnotation.State) => {
     ...state.messages // Use all messages without trimming
   ]);
 
-  console.log("profileAgent response", response);
+  // console.log("profileAgent response", response);
   
   // Check if tool calls were made
   if (response.tool_calls && response.tool_calls.length > 0) {
