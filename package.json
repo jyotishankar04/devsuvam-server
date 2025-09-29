@@ -11,8 +11,7 @@
     "@types/bun": "latest",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "serverless-dotenv-plugin": "^6.0.0",
-    "serverless-esbuild": "^1.55.1"
+    "serverless-dotenv-plugin": "^6.0.0"
   },
   "peerDependencies": {
     "typescript": "^5"
