@@ -1,19 +1,24 @@
 import express from "express";
 import cors from "cors";
-
+import blogsRoutes from "./blog/routes";
 import { config } from "dotenv";
 import ai from "./graph";
-
+import multer from "multer";
 config();
 const { PORT } = process.env;
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.send("Server is running");
 });
+const upload = multer();
+app.use(upload.none());
+
+app.use("/blogs", blogsRoutes);
 
 app.post("/api/ask", async (req, res) => {
   try {
@@ -47,9 +52,6 @@ app.post("/api/ask", async (req, res) => {
   }
 });
 
-import serverless from "serverless-http";
-
-// export const handler = serverless(app);
 // export default app
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
