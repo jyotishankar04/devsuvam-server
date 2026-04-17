@@ -12,7 +12,7 @@ const checkpointer = new MemorySaver();
 // Set up profile retriever tool
 const retriever = vectorStore.asRetriever();
 
-export const retriveFromVector = createRetrieverTool(retriever, {
+const retriveFromVector = createRetrieverTool(retriever, {
   name: "retrive_from_vector",
   description: "Use this tool for questions about user profile, experience, projects, resume, or contact details."
 });

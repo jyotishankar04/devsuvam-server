@@ -20,7 +20,7 @@ export const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
     maxConcurrency: 5,
 });
 
-export async function indexTheDocument() {
+async function indexTheDocument() {
     try {
         // console.log("Loading PDF...");
         const loader = new PDFLoader(`${process.cwd()}/public/profile.pdf`, { splitPages: false });

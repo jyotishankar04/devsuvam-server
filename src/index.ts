@@ -1,10 +1,15 @@
 import express from "express";
 import cors from "cors";
-import blogsRoutes from "./blog/routes";
 import { config } from "dotenv";
-import ai from "./graph";
-import multer from "multer";
+import path from "path";
 config();
+
+import blogsRoutes from "./blog/routes";
+import adminAuthRoutes from "./admin/auth";
+import adminRoutes from "./admin/routes";
+import publicRoutes from "./public/routes";
+import ai from "./graph";
+
 const { PORT } = process.env;
 const app = express();
 
@@ -12,13 +17,18 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
+app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads")));
+
+app.get("/", (_req, res) => {
   res.send("Server is running");
 });
-const upload = multer();
-app.use(upload.none());
 
 app.use("/blogs", blogsRoutes);
+
+app.use("/api/admin/auth", adminAuthRoutes);
+app.use("/api/admin", adminRoutes);
+
+app.use("/api", publicRoutes);
 
 app.post("/api/ask", async (req, res) => {
   try {
@@ -27,17 +37,10 @@ app.post("/api/ask", async (req, res) => {
       return res.status(400).json({ error: "Invalid question." });
     }
 
-    // Prepare message format per LangGraph convention
     const initialState = {
-      messages: [
-        {
-          role: "user",
-          content: question,
-        },
-      ],
+      messages: [{ role: "user", content: question }],
     };
-    // console.log(initialState)
-    // Invoke the full compiled graph instead of only ai.invoke
+
     const response = await ai.invoke(initialState, {
       configurable: { thread_id: configId },
     });
@@ -52,7 +55,6 @@ app.post("/api/ask", async (req, res) => {
   }
 });
 
-// export default app
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

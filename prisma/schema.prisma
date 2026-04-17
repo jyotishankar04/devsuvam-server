@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -13,17 +7,271 @@ datasource db {
   provider = "postgresql"
 }
 
-model Blogs {
+// ── Auth ──
+
+model AdminUser {
   id        String   @id @default(uuid())
-  slug      String   @unique
-  title     String
-  image     String   @default("http://choseandclick.com/image/cache/catalog/basel-demo/blog-1140x700.png")
-  content   String
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin") // super_admin, admin, editor
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  sessions Session[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+}
+
+// ── Blogs ──
+
+model Blogs {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  content     String
+  excerpt     String?
+  image       String   @default("http://choseandclick.com/image/cache/catalog/basel-demo/blog-1140x700.png")
   tags        String[]
   description String?
+  status      String   @default("draft") // draft, published, scheduled
+  scheduledAt DateTime?
+  seoTitle    String?
+  seoDescription String?
+  author      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([slug])
+  @@index([status])
+}
+
+// ── Projects ──
+
+model Project {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  description String
+  content     String   @default("")
+  image       String
+  gallery     String[] @default([])
+  videoUrl    String?
+  tags        String[]
+  category    String?
+  githubUrl   String?
+  liveUrl     String?
+  featured    Boolean  @default(false)
+  status      String   @default("published") // draft, published
+  sortOrder   Int      @default(0)
+  seoTitle    String?
+  seoDescription String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([featured])
+}
+
+// ── Experience ──
+
+model Experience {
+  id          String   @id @default(uuid())
+  company     String
+  role        String
+  period      String
+  description String   @default("")
+  works       String[]
+  skills      String[]
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
+// ── Education ──
+
+model Education {
+  id             String   @id @default(uuid())
+  degree         String
+  institution    String
+  institutionUrl String   @default("")
+  duration       String
+  gpa            String   @default("")
+  isCurrent      Boolean  @default(false)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
+// ── Skills ──
+
+model SkillCategory {
+  id        String   @id @default(uuid())
+  name      String
+  icon      String   @default("Code")
+  sortOrder Int      @default(0)
+  skills    Skill[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
+model Skill {
+  id         String        @id @default(uuid())
+  name       String
+  icon       String        @default("SiTypescript")
+  categoryId String
+  category   SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  sortOrder  Int           @default(0)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
+
+// ── Social Links ──
+
+model SocialLink {
+  id        String   @id @default(uuid())
+  name      String
+  url       String
+  username  String   @default("")
+  icon      String   @default("Link")
+  platform  String   @default("") // twitter, linkedin, github, instagram, etc.
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ── Hero Content ──
+
+model HeroContent {
+  id            String   @id @default(uuid())
+  name          String
+  title         String
+  subtitle      String   @default("")
+  description   String
+  resumeUrl     String   @default("")
+  images        String[] @default([])
+  techBadges    String[] @default([])
+  ctaPrimary    String   @default("Read the blog")
+  ctaPrimaryUrl String   @default("/blogs")
+  ctaSecondary  String   @default("Resume")
+  ctaSecondaryUrl String @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ── About Content ──
+
+model AboutContent {
+  id           String   @id @default(uuid())
+  name         String
+  title        String
+  bio          String
+  avatarUrl    String   @default("")
+  resumeUrl    String   @default("")
+  email        String   @default("")
+  phone        String   @default("")
+  linkedin     String   @default("")
+  github       String   @default("")
+  strengths    String   @default("[]") // JSON array of {icon, title, desc}
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ── Gallery ──
+
+model GalleryItem {
+  id        String   @id @default(uuid())
+  image     String
+  caption   String
+  mood      String   @default("")
+  date      String
+  featured  Boolean  @default(false)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ── Testimonials ──
+
+model Testimonial {
+  id        String   @id @default(uuid())
+  name      String
+  role      String   @default("")
+  company   String   @default("")
+  content   String
+  avatar    String   @default("")
+  rating    Int      @default(5)
+  featured  Boolean  @default(false)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ── Achievements ──
+
+model Achievement {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @default("")
+  icon        String   @default("Trophy")
+  date        String   @default("")
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ── Navigation ──
+
+model NavigationItem {
+  id        String   @id @default(uuid())
+  label     String
+  path      String
+  icon      String   @default("")
+  section   String   @default("header") // header, footer, both
+  isExternal Boolean @default(false)
+  sortOrder Int      @default(0)
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([section])
+  @@index([sortOrder])
+}
+
+// ── Site Settings ──
+
+model SiteSetting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+  updatedAt DateTime @updatedAt
+}
+
+// ── Media ──
+
+model Media {
+  id        String   @id @default(uuid())
+  filename  String
+  url       String
+  mimeType  String
+  size      Int
+  width     Int      @default(0)
+  height    Int      @default(0)
+  alt       String   @default("")
+  createdAt DateTime @default(now())
 }

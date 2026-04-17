@@ -7,6 +7,7 @@ const router = Router();
 router.get("/", async (req, res) => {
   try {
     const blogs = await prisma.blogs.findMany({
+      where: { status: "published" },
       select: {
         id: true,
         slug: true,
@@ -30,7 +31,9 @@ router.get("/:slug", async (req, res) => {
     if (!slug) {
       return res.status(400).json({ error: "Slug is required" });
     }
-    const blog = await prisma.blogs.findUnique({ where: { slug } });
+    const blog = await prisma.blogs.findFirst({
+      where: { slug, status: "published" },
+    });
     if (!blog) {
       return res.status(404).json({ error: "Blog not found" });
     }
